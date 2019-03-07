@@ -270,16 +270,20 @@ def build_path(g, source, destination):
                             break
 
             ###################################################################
-            #TODO: later change to calling peer first, and then provider if
-            #there is no path
+            #TODO: Fix 2,9
             ###################################################################
             elif options == 0:
                 providers = get_providers(g,source)
                 multiple_paths = []
+                peer_paths = []
                 if len(providers)!=0:
                     for p in providers:
                         multiple_paths.append(build_path(g,p,destination))
 
+                    if len(multiple_paths)!=0:
+                        multiple_paths = [x for x in multiple_paths if x is not None]
+                        best_path = min(multiple_paths, key=len)
+                        path.extend(best_path)
                 ## check if peer has a direct customer route to the node ##
                 ## if not, then can pass to the provider ##
                 elif (len(providers)==0):
@@ -287,34 +291,22 @@ def build_path(g, source, destination):
                         peers = get_peers(g, source)
                         peer_flag = True
                         for pe in peers:
-                            multiple_paths.append(build_path(g,pe,destination))
-                elif(len(providers)==0 and peer_flag==True):
-                    return None
+                            print(peer_flag)
+                            peer_paths.append(build_path(g,pe,destination))
 
-                if len(multiple_paths)!=0:
-                    multiple_paths = [x for x in multiple_paths if x is not None]
-                    best_path = min(multiple_paths, key=len)
-                    path.extend(best_path)
+                        if len(peer_paths)!=0:
+                            peer_paths = [x for x in peer_paths if x is not None]
+                            best_path = min(peer_paths, key=len)
+                            path.extend(best_path)
 
-
-
-                """
-                #TODO: FIND FOR THE TOPMOST CLIQUE A PEER PATH ---
-                else:
-                    peers = get_peers(g,source)
-                    multiple_paths = []
-                    for peer in peers:
-                        multiple_paths.append(build_path(g,peer,destination))
-                    if len(multiple_paths)!=0:
-                        best_path = min(multiple_paths, key=len)
-                        path.extend(best_path)
-                """
+                    else:
+                        return None
     print(path)
     return path
 
 #for i in range(1,12):
 #    print(i, g.node[i])
-print(build_path(g, 1, 9))
+print(build_path(g, 2, 9))
 '''
 for i in range(2,12):
     print('to node', i, build_path(g, 1, i))
