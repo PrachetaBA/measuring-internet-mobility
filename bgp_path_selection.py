@@ -270,7 +270,7 @@ def build_path(g, source, destination):
                             break
 
             ###################################################################
-            #TODO: Fix 2,9
+            #Fixed
             ###################################################################
             elif options == 0:
                 providers = get_providers(g,source)
@@ -281,9 +281,13 @@ def build_path(g, source, destination):
                         multiple_paths.append(build_path(g,p,destination))
 
                     if len(multiple_paths)!=0:
+                        #print("mult", multiple_paths)
                         multiple_paths = [x for x in multiple_paths if x is not None]
-                        best_path = min(multiple_paths, key=len)
-                        path.extend(best_path)
+                        if multiple_paths:
+                            best_path = min(multiple_paths, key=len)
+                            path.extend(best_path)
+                        else:
+                            return
                 ## check if peer has a direct customer route to the node ##
                 ## if not, then can pass to the provider ##
                 elif (len(providers)==0):
@@ -291,7 +295,7 @@ def build_path(g, source, destination):
                         peers = get_peers(g, source)
                         peer_flag = True
                         for pe in peers:
-                            print(peer_flag)
+                            #print(peer_flag)
                             peer_paths.append(build_path(g,pe,destination))
 
                         if len(peer_paths)!=0:
@@ -301,13 +305,15 @@ def build_path(g, source, destination):
 
                     else:
                         return None
-    print(path)
+
+    #print("from source ", source, " the path is", path)
     return path
 
 #for i in range(1,12):
 #    print(i, g.node[i])
-print(build_path(g, 2, 9))
-'''
-for i in range(2,12):
-    print('to node', i, build_path(g, 1, i))
-'''
+
+for i in range(1, 12):
+    for j in range(1,12):
+        if i!=j:
+            peer_flag = False
+            print(i," ", j, " ", build_path(g, i, j))
