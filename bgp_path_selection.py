@@ -39,7 +39,7 @@ g.add_edge(2,11,rel=-1)
 g.add_edge(11,2,rel=1)
 g.add_edge(6,11,rel=0)
 g.add_edge(11,6,rel=0)
-
+peer_flag = False
 
 def get_providers(g, node):
     p_list = list(g.adj[node])
@@ -54,14 +54,14 @@ def get_customers(g,node):
         if g.__getitem__(node)[n]['rel']!=1:
             c_list.remove(n)
     return c_list
-        
+
 def get_peers(g,node):
     final_list = []
     peer_list = list(g.adj[node])
     for peer in peer_list:
         if g.__getitem__(node)[peer]['rel']==0:
             final_list.append(peer)
-    return final_list 
+    return final_list
 
 def build_node_pr2c(g,node,destination):
     toexplore = deque()
@@ -72,7 +72,7 @@ def build_node_pr2c(g,node,destination):
         for i in clist:
             if i not in toexplore:
                 toexplore.append(i)
-        
+
         if destination in g.nodes[node].keys():
             pass
         else:
@@ -82,7 +82,7 @@ def build_node_pr2c(g,node,destination):
                 if destination in g.nodes[pro].keys():
                     compare_p.append(pro)
             if len(compare_p)>1:
-                #measure which provider has the shortest aslist and choose that as the best provider 
+                #measure which provider has the shortest aslist and choose that as the best provider
                 bestp = compare_p[0]
                 bestplen = len(g.nodes[bestp][destination])
                 for p in compare_p:
@@ -94,9 +94,9 @@ def build_node_pr2c(g,node,destination):
             aslist = g.nodes[bestp][destination].copy()
             aslist.append(bestp)
             g.nodes[node][destination] = aslist
-            
+
         toexplore.popleft()
-    
+
 def check_ifc(g, node, destination):
     route = g.nodes[node][destination]
     if g.__getitem__(node)[route[-1]]['rel']==1:
@@ -131,20 +131,20 @@ def build_node_attributes_5(g, destination):
                     for c in clist:
                         if destination in g.nodes[c].keys():
                             compare_c.append(c)
-                    
+
                     if len(compare_c)>1:
-                        #if all do, check which is the shortest 
-                        #if equal, add both? but which will it advertise? 
+                        #if all do, check which is the shortest
+                        #if equal, add both? but which will it advertise?
                         bestc = compare_c[0]
                         bestclen = len(g.nodes[bestc][destination])
                         for c in compare_c:
                             aslen = len(g.nodes[c][destination])
                             if aslen < bestclen:
                                 bestc = c
-                        
+
                     else:
                         bestc = compare_c[0]
-                    #after choosing the best 
+                    #after choosing the best
                     aslist = g.nodes[bestc][destination].copy()
                     aslist.append(bestc)
                     g.nodes[node][destination] = aslist
@@ -152,17 +152,17 @@ def build_node_attributes_5(g, destination):
                     aslist = (g.nodes[clist[0]][destination]).copy()
                     aslist.append(clist[0])
                     g.nodes[node][destination] = aslist
-        
+
         toexplore.popleft()
-    
-    
+
+
     while peerexplore:
         node = peerexplore[0]
         if destination in g.nodes[node].keys() and check_ifc(g, node, destination)==True:
             peerexplore.popleft()
         else:
             #get list of all peers who have a route to the destination
-            #TODO: what to do if multiple peers have a route to the destination? pick randomly? 
+            #TODO: what to do if multiple peers have a route to the destination? pick randomly?
             peerlist = get_peers(g,node)
             compare_p = []
             for p in peerlist:
@@ -171,28 +171,28 @@ def build_node_attributes_5(g, destination):
             #DEBUG:
             #print(node, compare_p)
             if len(compare_p)>1:
-                #if multiple peers have the destination then we choose the peer which has the shortest AS path 
-                #Can tweak by random choice if we need variety --- 
+                #if multiple peers have the destination then we choose the peer which has the shortest AS path
+                #Can tweak by random choice if we need variety ---
                 #bestp = random.choice(compare_p)
-                
+
                 bestp = compare_p[0]
                 bestplen = len(g.nodes[bestp][destination])
                 for p in compare_p:
                     aslen = len(g.nodes[p][destination])
                     if aslen < bestplen:
-                        bestp = p                
+                        bestp = p
             else:
                 bestp = compare_p[0]
             aslist = g.nodes[bestp][destination].copy()
             aslist.append(bestp)
             g.nodes[node][destination] = aslist
-        
-            #do push to customer if customer is not there --- 
-            #call the function that is going to do it. 
+
+            #do push to customer if customer is not there ---
+            #call the function that is going to do it.
             build_node_pr2c(g,node, destination)
-        
+
         peerexplore.popleft()
-        
+
 #Node attributes should be built for every single customer AS
 build_node_attributes_5(g,1)
 build_node_attributes_5(g,2)
@@ -202,21 +202,24 @@ build_node_attributes_5(g,4)
 def get_relationship(g, source, destination):
     return g.__getitem__(source)[destination]['rel']
 
-
+#TODO: once it reaches topmost provider, add a calling node and a boolean flag which is set to False
+#set the flag to true, and if true, don't call peer again.
+#first time it will be false
 def build_path(g, source, destination):
     '''
     Algorithm
     1. First every item looks at its own neighbors, and if its a neighbor, then send it directly
-    2. Then every node looks at it's routing table entry keys -- then the path is already defined 
+    2. Then every node looks at it's routing table entry keys -- then the path is already defined
     3. if this doesn't work, then do the following ----
-    Every node looks at every entry of its routing table, 
-    Case A: if the AS is included 
-        a. If AS exists in only one path, then take that path 
-        b. If there are multiple paths, check the last AS on that - follow customer > peer > provider 
+    Every node looks at every entry of its routing table,
+    Case A: if the AS is included
+        a. If AS exists in only one path, then take that path
+        b. If there are multiple paths, check the last AS on that - follow customer > peer > provider
     Case B: if the AS is not included
         a. Forward to provider, add to a global path variable the AS number
     '''
-    path = [source]    
+    global peer_flag
+    path = [source]
     while path[-1]!=destination:
         if destination in g.adj[source]:
             path.append(destination)
@@ -236,7 +239,7 @@ def build_path(g, source, destination):
                             path.append(a)
                             break
                 elif options > 1:
-                    #choose the key which is the customer path, over the peer path, over the provider path 
+                    #choose the key which is the customer path, over the peer path, over the provider path
                     key = 0
                     customers = []
                     peers = []
@@ -257,39 +260,46 @@ def build_path(g, source, destination):
                         key = peers[0]
                     else:
                         key = pro[0]
-                    
+
                     all_as = list(reversed(g.nodes[source][key][1:]))
                     for a in all_as:
                         if a != destination:
                             path.append(a)
                         else:
                             path.append(a)
-                            break                   
-            
+                            break
+
             ###################################################################
-            #REWORK
+            #TODO: later change to calling peer first, and then provider if
+            #there is no path
             ###################################################################
             elif options == 0:
                 providers = get_providers(g,source)
+                multiple_paths = []
                 if len(providers)!=0:
-                    different_paths = []
-                    for p in providers: 
-                        different_paths.append(build_path(g,p,destination))
-                        
-                    if len(different_paths)!=0: 
-                        best_path = min(different_paths, key=len) 
-                        path.extend(best_path)
-            '''
+                    for p in providers:
+                        multiple_paths.append(build_path(g,p,destination))
+
                 ## check if peer has a direct customer route to the node ##
                 ## if not, then can pass to the provider ##
-                peers = get_peers(g, source)
-                peer_paths = list()
-                for peer in peers:
-                    if peer.
-                
-                
-                
-                #TODO: FIND FOR THE TOPMOST CLIQUE A PEER PATH --- 
+                elif (len(providers)==0):
+                    if (peer_flag == False):
+                        peers = get_peers(g, source)
+                        peer_flag = True
+                        for pe in peers:
+                            multiple_paths.append(build_path(g,pe,destination))
+                elif(len(providers)==0 and peer_flag==True):
+                    return None
+
+                if len(multiple_paths)!=0:
+                    multiple_paths = [x for x in multiple_paths if x is not None]
+                    best_path = min(multiple_paths, key=len)
+                    path.extend(best_path)
+
+
+
+                """
+                #TODO: FIND FOR THE TOPMOST CLIQUE A PEER PATH ---
                 else:
                     peers = get_peers(g,source)
                     multiple_paths = []
@@ -298,12 +308,13 @@ def build_path(g, source, destination):
                     if len(multiple_paths)!=0:
                         best_path = min(multiple_paths, key=len)
                         path.extend(best_path)
-            '''
+                """
+    print(path)
     return path
 
-for i in range(1,12):
-    print(i, g.node[i])
-#print(build_path(g, 1,9))
+#for i in range(1,12):
+#    print(i, g.node[i])
+print(build_path(g, 1, 9))
 '''
 for i in range(2,12):
     print('to node', i, build_path(g, 1, i))
