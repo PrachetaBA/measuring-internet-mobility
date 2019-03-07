@@ -7,7 +7,7 @@ Created on Tue Feb 12 15:13:12 2019
 
 import networkx as nx
 from collections import deque
-#import random
+import random
 
 #demo graph 1
 """
@@ -121,8 +121,10 @@ def build_node_pr2c(g,node,destination):
                     aslen = len(g.nodes[p][destination])
                     if aslen < bestplen:
                         bestp = p
-            else:
+            elif len(compare_p)==1:
                 bestp = compare_p[0]
+            else:
+                break
             aslist = g.nodes[bestp][destination].copy()
             aslist.append(bestp)
             g.nodes[node][destination] = aslist
@@ -136,7 +138,7 @@ def check_ifc(g, node, destination):
     else:
         return False
 
-def build_node_attributes_5(g, destination):
+def build_node_attributes(g, destination):
     toexplore = deque()
     toexplore.append(destination)
     peerexplore = deque()
@@ -213,16 +215,20 @@ def build_node_attributes_5(g, destination):
                     aslen = len(g.nodes[p][destination])
                     if aslen < bestplen:
                         bestp = p
-            else:
+            elif len(compare_p)==1:
                 bestp = compare_p[0]
+            else:
+                break
             aslist = g.nodes[bestp][destination].copy()
             aslist.append(bestp)
             g.nodes[node][destination] = aslist
 
+
             #do push to customer if customer is not there ---
             #call the function that is going to do it.
             build_node_pr2c(g,node, destination)
-
+        if len(peerexplore)==0:
+            break
         peerexplore.popleft()
 
 
@@ -354,18 +360,21 @@ def customer_only():
 if __name__ == '__main__':
     g = nx.DiGraph()
     g = build_small_graph("Dataset/test-topo-2.txt")
-    print(list(sorted(g.nodes())))
     c = customer_only()
-    print(list(sorted(c)))
-    
-#Node attributes should be built for every single customer AS
-#first find all the leaf-only ASes and build the routing table
-#function to find the "Customer only" nodes in the graph
+    for cust in c:
+        build_node_attributes(g, cust)
+    #for i in range(1,27):
+    #    print(g.node[i])
+    #source = random.choice(list(g.nodes()))
+    #destination = random.choice(list(g.nodes()))
+    #print('source', source, 'dest', destination)
+    #if source!=destination:
+    #    peer_flag = False
+    #    print(build_path(g,source,destination))
 
-"""
-for i in range(1, 12):
-    for j in range(1,12):
-        if i!=j:
-            peer_flag = False
-            print(i," ", j, " ", build_path(g, i, j))
-"""
+
+    for i in range(1, 27):
+        for j in range(1,27):
+            if i!=j:
+                peer_flag = False
+                print(i," ", j, " ", build_path(g, i, j))
