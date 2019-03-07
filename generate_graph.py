@@ -10,14 +10,14 @@ Created on Wed Jan 23 23:52:37 2019
 Program to generate a smaller connected graph of ~2000 nodes from CAIDA dataset
 """
 import networkx as nx
-import pickle 
+import pickle
 
 """
 Function reads from the file, separates by | and builds a graph from the relationships defined
 """
-def build_smaller_graph(text_file_name):  
-    g = nx.DiGraph()      
-    try:    
+def build_smaller_graph(text_file_name):
+    g = nx.DiGraph()
+    try:
         f = open(text_file_name,"r")
         for line in f:
             line = line.rstrip('\n')
@@ -35,19 +35,19 @@ def build_smaller_graph(text_file_name):
                     g.add_edge(to_node, from_node,rel=1)
                 if(rel==0):
                     g.add_edge(to_node,from_node,rel=0)
-                        
+
         f.close()
     except IndexError as error:
         print(error)
-    
+
     return g
 """
 Save graph to a pickle file
 """
-def save_graph(g,file_name):        
+def save_graph(g,file_name):
     with open(file_name,'wb') as f:
         pickle.dump(g,f,pickle.HIGHEST_PROTOCOL)
-        
+
 """
 Read graph from pickle file
 """
@@ -57,7 +57,7 @@ def read_graph(graph_file_name):
         return g
 """
 Depth First Search of the full graph to determine the children nodes
-"""  
+"""
 def dfs_tree(source):
     all_children = list(nx.dfs_tree(g,source=source, depth_limit=5))
     return all_children[:700]
@@ -86,6 +86,6 @@ if __name__ == "__main__":
     #build new graph to contain connected component
     new_g = nx.DiGraph()
     new_g = build_smaller_graph("Dataset\copy-as-rel.txt")
-    #Run to build the graph and save the graph in a pickle file 
+    #Run to build the graph and save the graph in a pickle file
     save_graph(new_g,'Dataset\BGPGraph.pickle')
     print(len(new_g.nodes()))

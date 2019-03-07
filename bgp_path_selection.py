@@ -9,7 +9,8 @@ import networkx as nx
 from collections import deque
 #import random
 
-#demo graph
+#demo graph 1
+"""
 g = nx.DiGraph()
 g.add_edge(1,5,rel=-1)
 g.add_edge(5,1,rel=1)
@@ -39,7 +40,38 @@ g.add_edge(2,11,rel=-1)
 g.add_edge(11,2,rel=1)
 g.add_edge(6,11,rel=0)
 g.add_edge(11,6,rel=0)
+"""
 peer_flag = False
+
+#demo_Graph-2
+def build_small_graph(text_file_name):
+    try:
+        f = open(text_file_name,"r")
+        for line in f:
+            line = line.rstrip('\n')
+            a = line.split(sep="|")
+            from_node = int(a[0])
+            to_node = int(a[1])
+            rel = int(a[2])
+            #if from_node in nodes_new_g and to_node in nodes_new_g:
+            if from_node not in g:
+                g.add_node(from_node)
+            if to_node not in g:
+                g.add_node(to_node)
+            g.add_edge(from_node, to_node, rel=rel)
+            if(rel==-1):
+                g.add_edge(to_node, from_node,rel=1)
+            if(rel==0):
+                g.add_edge(to_node,from_node,rel=0)
+            if(rel==1):
+                g.add_edge(to_node, from_node, rel=-1)
+
+        f.close()
+    except IndexError as error:
+        print(error)
+
+    return g
+
 
 def get_providers(g, node):
     p_list = list(g.adj[node])
@@ -193,11 +225,6 @@ def build_node_attributes_5(g, destination):
 
         peerexplore.popleft()
 
-#Node attributes should be built for every single customer AS
-build_node_attributes_5(g,1)
-build_node_attributes_5(g,2)
-build_node_attributes_5(g,3)
-build_node_attributes_5(g,4)
 
 def get_relationship(g, source, destination):
     return g.__getitem__(source)[destination]['rel']
@@ -309,11 +336,36 @@ def build_path(g, source, destination):
     #print("from source ", source, " the path is", path)
     return path
 
-#for i in range(1,12):
-#    print(i, g.node[i])
+#function to find the leaf nodes
+#TODO: Fix customer_only
+def customer_only():
+    c_only = []
+    for i in g.adjacency():
+        node = i[0]
+        neighbor = i[1]
+        list1 = neighbor.keys()
+        all_rel = []
+        for j in list1:
+            all_rel.append(neighbor[j]['rel'])
+        if 1 not in all_rel:
+            c_only.append(node)
+    return c_only
 
+if __name__ == '__main__':
+    g = nx.DiGraph()
+    g = build_small_graph("Dataset/test-topo-2.txt")
+    print(list(sorted(g.nodes())))
+    c = customer_only()
+    print(list(sorted(c)))
+    
+#Node attributes should be built for every single customer AS
+#first find all the leaf-only ASes and build the routing table
+#function to find the "Customer only" nodes in the graph
+
+"""
 for i in range(1, 12):
     for j in range(1,12):
         if i!=j:
             peer_flag = False
             print(i," ", j, " ", build_path(g, i, j))
+"""
