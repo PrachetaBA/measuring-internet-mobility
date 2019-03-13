@@ -22,8 +22,8 @@ def build_smaller_graph(text_file_name):
         for line in f:
             line = line.rstrip('\n')
             a = line.split(sep="|")
-            from_node = int(a[0])
-            to_node = int(a[1])
+            from_node = int(a[1])
+            to_node = int(a[0])
             rel = int(a[2])
             if from_node in nodes_new_g and to_node in nodes_new_g:
                 if from_node not in g:

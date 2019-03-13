@@ -8,7 +8,7 @@ Created on Tue Feb 12 15:13:12 2019
 import networkx as nx
 from collections import deque
 import random
-
+import pickle
 #demo graph 1
 """
 g = nx.DiGraph()
@@ -41,7 +41,7 @@ g.add_edge(11,2,rel=1)
 g.add_edge(6,11,rel=0)
 g.add_edge(11,6,rel=0)
 """
-peer_flag = False
+# peer_flag = False
 
 #demo_Graph-2
 def build_small_graph(text_file_name):
@@ -314,7 +314,7 @@ def build_path(g, source, destination):
                         multiple_paths.append(build_path(g,p,destination))
 
                     if len(multiple_paths)!=0:
-                        #print("mult", multiple_paths)
+                        # print("mult", multiple_paths)
                         multiple_paths = [x for x in multiple_paths if x is not None]
                         if multiple_paths:
                             best_path = min(multiple_paths, key=len)
@@ -332,14 +332,19 @@ def build_path(g, source, destination):
                             peer_paths.append(build_path(g,pe,destination))
 
                         if len(peer_paths)!=0:
+                            # print("peer", peer_paths)
                             peer_paths = [x for x in peer_paths if x is not None]
-                            best_path = min(peer_paths, key=len)
-                            path.extend(best_path)
+                            if peer_paths:
+                                best_path = min(peer_paths, key=len)
+                                path.extend(best_path)
+                            else:
+                                return
 
                     else:
-                        return None
+                        # return None
+                        return
 
-    #print("from source ", source, " the path is", path)
+    # print("from source ", source, " the path is", path)
     return path
 
 #function to find the leaf nodes
@@ -356,25 +361,47 @@ def customer_only():
         if 1 not in all_rel:
             c_only.append(node)
     return c_only
+"""
+Read graph from a pickle file
+"""
+def read_graph(graph_file_name):
+    with open(graph_file_name,'rb') as f:
+        g = pickle.load(f)
+        return g
+
+"""
+Save graph to a pickle file
+"""
+def save_graph(g,file_name):
+    with open(file_name,'wb') as f:
+        pickle.dump(g,f,pickle.HIGHEST_PROTOCOL)
+
+def build_routing_table(g):
+    c = customer_only()
+    print(len(c))
+    count=0
+    for cust in c:
+        build_node_attributes(g, cust)
+        count+=1
+        print(count)
+
+    save_graph(g, "Dataset/BGP_Routing_Table.pickle")
 
 if __name__ == '__main__':
     g = nx.DiGraph()
-    g = build_small_graph("Dataset/test-topo-2.txt")
-    c = customer_only()
-    for cust in c:
-        build_node_attributes(g, cust)
-    #for i in range(1,27):
-    #    print(g.node[i])
-    #source = random.choice(list(g.nodes()))
-    #destination = random.choice(list(g.nodes()))
-    #print('source', source, 'dest', destination)
-    #if source!=destination:
-    #    peer_flag = False
-    #    print(build_path(g,source,destination))
+    g = read_graph("Dataset/BGP_Routing_Table.pickle")
+    print("read the graph")
+    # build_routing_table(g)
 
+    source = random.choice(customer_only())
+    destination = random.choice(list(g.nodes()))
+    # source = 13700
+    # destination = 3491
 
-    for i in range(1, 27):
-        for j in range(1,27):
-            if i!=j:
-                peer_flag = False
-                print(i," ", j, " ", build_path(g, i, j))
+    print('source', source, 'dest', destination)
+    # print('source', g.adj[source])
+    # print()
+    # print('destination', g.adj[destination])
+    if source!=destination:
+       peer_flag = False
+       print(build_path(g,source,destination))
