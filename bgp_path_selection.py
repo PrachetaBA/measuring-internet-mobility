@@ -390,18 +390,15 @@ def build_routing_table(g):
 if __name__ == '__main__':
     g = nx.DiGraph()
     g = read_graph("Dataset/BGP_Routing_Table.pickle")
-    print("read the graph")
+    # print("read the graph")
     # build_routing_table(g)
 
-    source = random.choice(customer_only())
-    destination = random.choice(list(g.nodes()))
-    # source = 13700
-    # destination = 3491
 
-    print('source', source, 'dest', destination)
-    # print('source', g.adj[source])
-    # print()
-    # print('destination', g.adj[destination])
-    if source!=destination:
-       peer_flag = False
-       print(build_path(g,source,destination))
+    for i in range(60):
+        source = random.choice(customer_only())
+        destination = random.choice(list(g.nodes()))
+        print('source', source, 'dest', destination)
+        if source!=destination:
+           peer_flag = False
+           print(build_path(g,source,destination))
+           print()
