@@ -9,39 +9,6 @@ import networkx as nx
 from collections import deque
 import random
 import pickle
-#demo graph 1
-"""
-g = nx.DiGraph()
-g.add_edge(1,5,rel=-1)
-g.add_edge(5,1,rel=1)
-g.add_edge(2,5,rel=-1)
-g.add_edge(5,2,rel=1)
-g.add_edge(5,7,rel=-1)
-g.add_edge(7,5,rel=1)
-g.add_edge(3,6,rel=-1)
-g.add_edge(6,3,rel=1)
-g.add_edge(6,7,rel=-1)
-g.add_edge(7,6,rel=1)
-g.add_edge(10,7,rel=0)
-g.add_edge(7,10,rel=0)
-g.add_edge(8,7,rel=0)
-g.add_edge(7,8,rel=0)
-g.add_edge(8,10,rel=0)
-g.add_edge(10,8,rel=0)
-g.add_edge(4,8,rel=-1)
-g.add_edge(8,4,rel=1)
-g.add_edge(4,9,rel=-1)
-g.add_edge(9,4,rel=1)
-g.add_edge(9,10,rel=-1)
-g.add_edge(10,9,rel=1)
-g.add_edge(7,11,rel=1)
-g.add_edge(11,7,rel=-1)
-g.add_edge(2,11,rel=-1)
-g.add_edge(11,2,rel=1)
-g.add_edge(6,11,rel=0)
-g.add_edge(11,6,rel=0)
-"""
-# peer_flag = False
 
 #demo_Graph-2
 def build_small_graph(text_file_name):
@@ -71,7 +38,6 @@ def build_small_graph(text_file_name):
         print(error)
 
     return g
-
 
 def get_providers(g, node):
     p_list = list(g.adj[node])
@@ -235,9 +201,7 @@ def build_node_attributes(g, destination):
 def get_relationship(g, source, destination):
     return g.__getitem__(source)[destination]['rel']
 
-#TODO: once it reaches topmost provider, add a calling node and a boolean flag which is set to False
-#set the flag to true, and if true, don't call peer again.
-#first time it will be false
+
 def build_path(g, source, destination):
     '''
     Algorithm
@@ -302,9 +266,6 @@ def build_path(g, source, destination):
                             path.append(a)
                             break
 
-            ###################################################################
-            #Fixed
-            ###################################################################
             elif options == 0:
                 providers = get_providers(g,source)
                 multiple_paths = []
@@ -321,18 +282,15 @@ def build_path(g, source, destination):
                             path.extend(best_path)
                         else:
                             return
-                ## check if peer has a direct customer route to the node ##
-                ## if not, then can pass to the provider ##
+
                 elif (len(providers)==0):
                     if (peer_flag == False):
                         peers = get_peers(g, source)
                         peer_flag = True
                         for pe in peers:
-                            #print(peer_flag)
                             peer_paths.append(build_path(g,pe,destination))
 
                         if len(peer_paths)!=0:
-                            # print("peer", peer_paths)
                             peer_paths = [x for x in peer_paths if x is not None]
                             if peer_paths:
                                 best_path = min(peer_paths, key=len)
@@ -341,10 +299,8 @@ def build_path(g, source, destination):
                                 return
 
                     else:
-                        # return None
                         return
 
-    # print("from source ", source, " the path is", path)
     return path
 
 #function to find the leaf nodes
@@ -387,18 +343,20 @@ def build_routing_table(g):
 
     save_graph(g, "Dataset/BGP_Routing_Table.pickle")
 
-if __name__ == '__main__':
+def main():
     g = nx.DiGraph()
     g = read_graph("Dataset/BGP_Routing_Table.pickle")
     # print("read the graph")
     # build_routing_table(g)
 
-
-    for i in range(60):
-        source = random.choice(customer_only())
-        destination = random.choice(list(g.nodes()))
+    source = random.choice(customer_only())
+    destination = random.choice(list(g.nodes()))
+    for i in range(20):
         print('source', source, 'dest', destination)
         if source!=destination:
            peer_flag = False
            print(build_path(g,source,destination))
            print()
+           
+if __name__ == '__main__':
+    main()
