@@ -61,7 +61,7 @@ def main():
     old_dest_list = locations[1]
     new_dest_list = locations[2]
     #TODO: change number of gns server
-    gns = gns_servers(g, 10)
+    gns = gns_servers(g, 500)
     total_fc = []
     # for i in range(len(source_list)):
     for i in range(3):

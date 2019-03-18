@@ -27,24 +27,37 @@ def find_path(g, source, dest):
 def forwarding_cost(old_path, new_path):
     return len(new_path) - len(old_path)
 
+
 #indirection paths assuming old_dest = home agent
-def get_paths(g, source, old_dest, new_dest):
-    old_path = find_path(g, source, old_dest)
-    new_path = find_path(g, source, old_dest) + find_path(g, old_dest, new_dest)[1:]
+def get_paths(g, source, old_dest, new_dest, home):
+    old_path = find_path(g, source, home[source]) + find_path(g, home[source], old_dest)[1:]
+    new_path = find_path(g, source, home[source]) + find_path(g, home[source], new_dest)[1:]
     return old_path, new_path
 
+
+#if old_dest != home agent
+def home_agent(g, source_list):
+    home = {}
+    for source in source_list:
+        home[source]=source
+        while home[source]==source:
+            home[source] = random.choice(list(g.nodes()))
+    return home
+
+#TODO: what is old_dest is home agent? 
 def main():
     g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
     locations = read_lists(Path("../Dataset/Locations.pickle"))
     source_list = locations[0]
     old_dest_list = locations[1]
     new_dest_list = locations[2]
+    home = home_agent(g, source_list)
     total_fc = []
     for i in range(10):
         s = source_list[i]
         od = old_dest_list[i]
         nd = new_dest_list[i]
-        op, np = get_paths(g, s, od, nd)
+        op, np = get_paths(g, s, od, nd, home)
         print(op, "  ",np)
         total_fc.append(forwarding_cost(op,np))
         print(i)

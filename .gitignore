@@ -1,1 +1,5 @@
 __pycache__/
+Experiments/__pycache__/
+Dataset/asclasses.txt
+Dataset/test-topo-2.txt
+Dataset/test-topo-3.txt
