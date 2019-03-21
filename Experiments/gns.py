@@ -28,6 +28,16 @@ def gns_servers(g, n):
     gns = random.sample(g.nodes(), n)
     return gns
 
+#keep dictionary of closest servers
+def nearest_gns_servers(g, gns, source_list):
+    best_gns = {}
+    i=0
+    for source in source_list:
+        i+=1
+        print(i)
+        best_gns[source]=closest_gns(g,gns,source)
+    return best_gns
+
 #find closest gns server
 def closest_gns(g, gns, source):
     gns_len = float("inf")
@@ -39,7 +49,7 @@ def closest_gns(g, gns, source):
         if len(path)<gns_len:
             gns_len = len(path)
             gns_ser = server
-            if len(path)==1:
+            if len(path)==2:
                 break
     return server
 
@@ -48,11 +58,28 @@ def forwarding_cost(old_path, new_path):
     return len(new_path) - len(old_path)
 
 #gns paths
-def get_paths(g, gns, source, old_dest, new_dest):
-    server = closest_gns(g, gns, source)
+def get_paths(g, nearest_gns, source, old_dest, new_dest):
+    server = nearest_gns[source]
     old_path = find_path(g, source, server) + find_path(g, server, source)[1:] + find_path(g, source, old_dest)[1:]
     new_path = find_path(g, source, server) + find_path(g, server, source)[1:] + find_path(g, source, new_dest)[1:]
     return old_path, new_path
+
+def save_results(lists,file_name):
+    with open(file_name,'wb') as f:
+        pickle.dump(lists,f,pickle.HIGHEST_PROTOCOL)
+
+def save_gns(g, source_list):
+    #TODO: change number of gns server - n/4 currently
+    gns = gns_servers(g, 100)
+    nearest_gns = nearest_gns_servers(g, gns, source_list)
+    list_gns = (gns,nearest_gns)
+    with open(Path("../Dataset/GNS_Servers.pickle"),'wb') as f:
+        pickle.dump(list_gns,f,pickle.HIGHEST_PROTOCOL)
+
+def read_gns():
+    with open(Path("../Dataset/GNS_Servers.pickle"),'rb') as f:
+        gns_info = pickle.load(f)
+    return gns_info[0],gns_info[1]
 
 def main():
     g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
@@ -60,19 +87,23 @@ def main():
     source_list = locations[0]
     old_dest_list = locations[1]
     new_dest_list = locations[2]
-    #TODO: change number of gns server
-    gns = gns_servers(g, 500)
     total_fc = []
-    # for i in range(len(source_list)):
-    for i in range(3):
+    gns, nearest_gns = read_gns()
+    for i in range(len(source_list)):
         s = source_list[i]
         od = old_dest_list[i]
         nd = new_dest_list[i]
-        op, np = get_paths(g, gns, s, od, nd)
-        print(op, "  ",np)
+        op, np = get_paths(g, nearest_gns, s, od, nd)
+        # print(op, "  ",np)
         total_fc.append(forwarding_cost(op,np))
         print(i)
     print(total_fc)
+    results = (total_fc)
+    save_results(results, Path("../Results/res_gns.pickle"))
 
 if __name__ == '__main__':
+    # g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
+    # locations = read_lists(Path("../Dataset/Locations.pickle"))
+    # source_list = locations[0]
+    # save_gns(g, source_list)
     main()

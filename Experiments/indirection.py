@@ -44,7 +44,11 @@ def home_agent(g, source_list):
             home[source] = random.choice(list(g.nodes()))
     return home
 
-#TODO: what is old_dest is home agent? 
+def save_results(lists,file_name):
+    with open(file_name,'wb') as f:
+        pickle.dump(lists,f,pickle.HIGHEST_PROTOCOL)
+
+#TODO: what is old_dest is home agent?
 def main():
     g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
     locations = read_lists(Path("../Dataset/Locations.pickle"))
@@ -53,15 +57,17 @@ def main():
     new_dest_list = locations[2]
     home = home_agent(g, source_list)
     total_fc = []
-    for i in range(10):
+    for i in range(len(source_list)):
         s = source_list[i]
         od = old_dest_list[i]
         nd = new_dest_list[i]
         op, np = get_paths(g, s, od, nd, home)
-        print(op, "  ",np)
+        # print(op, "  ",np)
         total_fc.append(forwarding_cost(op,np))
-        print(i)
-    print(total_fc)
+        # print(i)
+    # print(total_fc)
+    results = (total_fc)
+    save_results(results, Path("../Results/res_indirection.pickle"))
 
 if __name__ == '__main__':
     main()

@@ -46,6 +46,10 @@ def update_cost(g, old_dest, new_dest):
             uc_count+=1
     return uc_count
 
+def save_results(lists,file_name):
+    with open(file_name,'wb') as f:
+        pickle.dump(lists,f,pickle.HIGHEST_PROTOCOL)
+
 def main():
     g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
     locations = read_lists(Path("../Dataset/Locations.pickle"))
@@ -61,9 +65,11 @@ def main():
         op,np = find_paths(g, s, od, nd)
         total_fc.append(forwarding_cost(op,np))
         total_uc.append(update_cost(g, od, nd))
-        print(i)
+        # print(i)
     print(total_fc)
     print(total_uc)
+    results = (total_fc, total_uc)
+    save_results(results, Path("../Results/res_best_port.pickle"))
 
 if __name__ == '__main__':
     main()
