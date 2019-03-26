@@ -75,12 +75,25 @@ Update cost is the cost associated with changes to unpopular locations?
 """
 def forwarding_cost(g, source, l, new_dest):
     paths = []
-    for node in l:
+    pop_l = l[:4]
+    for node in pop_l:
         paths.append(find_path(g, source, node))
-    #get unique paths traversed --- forwarding cost
-    print(paths)
-    unique_links = [y for x in paths for y in x]
-    return len(set(unique_links))
+    #get unique paths traversed --- forwarding cost in all cases,
+    pop_unique_links = [y for x in paths for y in x]
+    pop_path_cost = len(set(pop_unique_links))
+    #check if the new_dest is a popular location or unpopular location
+    #if unpopular, forwarding_cost will be added to existing forwarding cost
+    unpop_l = pop_l
+    if new_dest[1]<0.1:
+        unpop_l.append(new_dest[0])
+        npaths = []
+        for node in unpop_l:
+            npaths.append(find_path(g, source, node))
+        unpop_unique_links = [y for x in npaths for y in x]
+        unpop_path_cost = len(set(unpop_unique_links))
+        return unpop_path_cost
+    else:
+        return pop_path_cost
 
 def createlist():
     g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
@@ -92,6 +105,10 @@ def createlist():
     parallel_multicast = (l, old_dest, new_dest)
     save_lists(parallel_multicast, Path("../Dataset/PMulticast_Locations.pickle"))
 
+def save_results(lists,file_name):
+    with open(file_name,'wb') as f:
+        pickle.dump(lists,f,pickle.HIGHEST_PROTOCOL)
+
 def main():
     g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
     locations = read_lists(Path("../Dataset/Locations.pickle"))
@@ -100,7 +117,29 @@ def main():
     locations = data[0]
     old_dest = data[1]
     new_dest = data[2]
-    print(locations[6939], "\n", old_dest[0], "\n", new_dest[6939])
+    '''
+    how to call fc for each of the destination in the sampled destination
+    we have 10 destinations generated according to the zipfian distribution,
+    even if we average the path cost, we find that the forwarding cost does
+    not change as much, because the unpopular destinations are small, can be proven
+    k = 8304
+    v = new_dest[k]
+    print(v)
+    fc = forwarding_cost(g, k, locations[k], v[8])
+    print(fc)
+    '''
+    #temporary new destination
+    # tmpdest = {key:value for key,value in list(new_dest.items())[0:3]}
+    total_fc = []
+    for k,v in new_dest.items():
+        fc = 0
+        for dest in v:
+            fc += forwarding_cost(g, k, locations[k], dest)
+        fc=fc/10
+        total_fc.append(fc)
+
+    results = (total_fc)
+    save_results(results, Path("../Results/res_parallelmulticast.pickle")))
 
 if __name__ == '__main__':
     # createlist()
