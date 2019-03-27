@@ -30,6 +30,10 @@ def find_paths(g, source, old_dest, new_dest):
 def forwarding_cost(old_path, new_path):
     return len(new_path) - len(old_path)
 
+#alternatively measuring forwarding costs
+def forwarding_cost_2(new_path):
+    return len(new_path)
+
 #find update cost for a particular movement
 def update_cost(g, old_dest, new_dest):
     uc_count = 0
@@ -58,17 +62,19 @@ def main():
     new_dest_list = locations[2]
     total_fc = []
     total_uc = []
+    total_fc_2 = []
     for i in range(len(source_list)):
         s = source_list[i]
         od = old_dest_list[i]
         nd = new_dest_list[i]
         op,np = find_paths(g, s, od, nd)
         total_fc.append(forwarding_cost(op,np))
+        total_fc_2.append(forwarding_cost_2(np))
         total_uc.append(update_cost(g, od, nd))
-        # print(i)
-    print(total_fc)
-    print(total_uc)
-    results = (total_fc, total_uc)
+        print(i)
+    # print(total_fc)
+    # print(total_uc)
+    results = (total_fc, total_fc_2, total_uc)
     save_results(results, Path("../Results/res_best_port.pickle"))
 
 if __name__ == '__main__':

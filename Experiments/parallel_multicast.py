@@ -131,15 +131,17 @@ def main():
     #temporary new destination
     # tmpdest = {key:value for key,value in list(new_dest.items())[0:3]}
     total_fc = []
+    i=0
     for k,v in new_dest.items():
+        print(i)
         fc = 0
         for dest in v:
             fc += forwarding_cost(g, k, locations[k], dest)
         fc=fc/10
         total_fc.append(fc)
-
+        i+=1
     results = (total_fc)
-    save_results(results, Path("../Results/res_parallelmulticast.pickle")))
+    save_results(results, Path("../Results/res_parallelmulticast.pickle"))
 
 if __name__ == '__main__':
     # createlist()

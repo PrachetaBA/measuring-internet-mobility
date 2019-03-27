@@ -57,6 +57,10 @@ def closest_gns(g, gns, source):
 def forwarding_cost(old_path, new_path):
     return len(new_path) - len(old_path)
 
+#alternative forwarding_cost
+def forwarding_cost_2(new_path):
+    return len(new_path)
+
 #gns paths
 def get_paths(g, nearest_gns, source, old_dest, new_dest):
     server = nearest_gns[source]
@@ -88,6 +92,7 @@ def main():
     old_dest_list = locations[1]
     new_dest_list = locations[2]
     total_fc = []
+    total_fc_2 = []
     gns, nearest_gns = read_gns()
     for i in range(len(source_list)):
         s = source_list[i]
@@ -96,9 +101,10 @@ def main():
         op, np = get_paths(g, nearest_gns, s, od, nd)
         # print(op, "  ",np)
         total_fc.append(forwarding_cost(op,np))
+        total_fc_2.append(forwarding_cost_2(np))
         print(i)
-    print(total_fc)
-    results = (total_fc)
+    # print(total_fc)
+    results = (total_fc, total_fc_2)
     save_results(results, Path("../Results/res_gns.pickle"))
 
 if __name__ == '__main__':

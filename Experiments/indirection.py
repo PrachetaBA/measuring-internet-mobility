@@ -27,6 +27,9 @@ def find_path(g, source, dest):
 def forwarding_cost(old_path, new_path):
     return len(new_path) - len(old_path)
 
+#alternative fc
+def forwarding_cost_2(new_path):
+    return len(new_path)
 
 #indirection paths assuming old_dest = home agent
 def get_paths(g, source, old_dest, new_dest, home):
@@ -57,6 +60,7 @@ def main():
     new_dest_list = locations[2]
     home = home_agent(g, source_list)
     total_fc = []
+    total_fc_2 = []
     for i in range(len(source_list)):
         s = source_list[i]
         od = old_dest_list[i]
@@ -64,9 +68,10 @@ def main():
         op, np = get_paths(g, s, od, nd, home)
         # print(op, "  ",np)
         total_fc.append(forwarding_cost(op,np))
-        # print(i)
+        total_fc_2.append(forwarding_cost_2(np))
+        print(i)
     # print(total_fc)
-    results = (total_fc)
+    results = (total_fc, total_fc_2)
     save_results(results, Path("../Results/res_indirection.pickle"))
 
 if __name__ == '__main__':
