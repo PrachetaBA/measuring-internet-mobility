@@ -129,7 +129,7 @@ def main():
     print(fc)
     '''
     #temporary new destination
-    # tmpdest = {key:value for key,value in list(new_dest.items())[0:3]}
+    # tmpdest = {key:value for key,value in list(new_dest.items())[0:5]}
     total_fc = []
     i=0
     for k,v in new_dest.items():
@@ -140,7 +140,9 @@ def main():
         fc=fc/10
         total_fc.append(fc)
         i+=1
+    # print(total_fc)
     results = (total_fc)
+    # print(results)
     save_results(results, Path("../Results/res_parallelmulticast.pickle"))
 
 if __name__ == '__main__':

@@ -75,6 +75,7 @@ def main():
     # print(total_fc)
     # print(total_uc)
     results = (total_fc, total_fc_2, total_uc)
+    # print(results)
     save_results(results, Path("../Results/res_best_port.pickle"))
 
 if __name__ == '__main__':
