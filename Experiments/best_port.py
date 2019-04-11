@@ -63,6 +63,7 @@ def main():
     total_fc = []
     total_uc = []
     total_fc_2 = []
+    total_fc_shortest=[]
     for i in range(len(source_list)):
         s = source_list[i]
         od = old_dest_list[i]
@@ -70,12 +71,13 @@ def main():
         op,np = find_paths(g, s, od, nd)
         total_fc.append(forwarding_cost(op,np))
         total_fc_2.append(forwarding_cost_2(np))
+        total_fc_shortest.append(len(nx.shortest_path(g,s,nd)))
         total_uc.append(update_cost(g, od, nd))
         print(i)
     # print(total_fc)
     # print(total_uc)
-    results = (total_fc, total_fc_2, total_uc)
-    # print(results)
+    results = (total_fc, total_fc_2, total_fc_shortest, total_uc)
+    print(len(results))
     save_results(results, Path("../Results/res_best_port.pickle"))
 
 if __name__ == '__main__':

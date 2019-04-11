@@ -46,7 +46,7 @@ def autolabel(rects):
 avg_fc = (fc_n, fc_p, fc_g, fc_i)
 print(avg_fc)
 #2118 is the total number of nodes we have 
-avg_uc = (uc_n, 2118, 100, 1)
+avg_uc = (uc_n, 2117, 100, 1)
 print(avg_uc)
 n_groups = 4
 fig, ax = plt.subplots()
