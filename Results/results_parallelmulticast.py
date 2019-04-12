@@ -9,8 +9,7 @@ import numpy as np
 def read_results(file_name):
     with open(file_name, 'rb') as f:
         results = pickle.load(f)
-    fc_path_len = results[0]
-    return fc_path_len
+    return results
 
 fc_path_len = read_results("res_parallelmulticast.pickle")
 fc_path_len = sum(fc_path_len)/len(fc_path_len)
@@ -32,6 +31,7 @@ bar_width = 0.2
 opacity = 0.8
 rects1 = plt.bar(index, res, bar_width, color = 'c', label="Forwarding Costs")
 autolabel(rects1)
+plt.xlabel("Parallel Multicast")
 plt.ylabel("Avg Cost over 200 endpoints")
 plt.xticks(index, ('Forwarding Costs', 'Update Costs'))
 plt.tight_layout()
