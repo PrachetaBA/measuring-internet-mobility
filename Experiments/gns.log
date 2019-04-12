@@ -1,0 +1,7 @@
+nohup: ignoring input
+Traceback (most recent call last):
+  File "gns.py", line 111, in <module>
+    g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
+  File "gns.py", line 18, in read_graph
+    g = pickle.load(f)
+MemoryError
