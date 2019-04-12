@@ -133,7 +133,7 @@ def main():
     total_fc = []
     i=0
     for k,v in new_dest.items():
-        print(i)
+        print(i, end=' ')
         fc = 0
         for dest in v:
             fc += forwarding_cost(g, k, locations[k], dest)
