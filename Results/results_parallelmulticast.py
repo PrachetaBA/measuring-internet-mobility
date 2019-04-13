@@ -9,18 +9,11 @@ import numpy as np
 def read_results(file_name):
     with open(file_name, 'rb') as f:
         results = pickle.load(f)
-    fc_diff = results[0]
-    fc_path_len = results[1]
-    fc_shortest = results[2]
-    uc = results[3]
-    return fc_diff, fc_path_len, fc_shortest, uc
+    return results
 
-fc_diff, fc_path_len, fc_shortest, uc = read_results("res_best_port.pickle")
-
-# fc_diff = sum(fc_diff)/len(fc_diff)
+fc_path_len = read_results("res_parallelmulticast.pickle")
 fc_path_len = sum(fc_path_len)/len(fc_path_len)
-fc_shortest = sum(fc_shortest)/len(fc_shortest)
-uc = sum(uc)/len(uc)
+uc = 2117
 
 def autolabel(rects):
     # attach some text labels
@@ -30,22 +23,16 @@ def autolabel(rects):
                 '%f' % height,
                 ha='center', va='bottom')
         
-# print(fc_diff)
-avg_fc = (fc_path_len, fc_shortest)
+res = (fc_path_len, uc)
 n_groups = 2
 fig, ax = plt.subplots()
 index = np.arange(n_groups)
 bar_width = 0.2
 opacity = 0.8
-rects1 = plt.bar(index, avg_fc, bar_width, color = 'c', label="Forwarding Costs")
+rects1 = plt.bar(index, res, bar_width, color = 'c', label="Forwarding Costs")
 autolabel(rects1)
-# rects2 = plt.bar(index + bar_width, avg_uc, bar_width, color = 'g', label="Update Costs")
-# autolabel(rects2)
-# plt.xlabel("Synchronization problem")
+plt.xlabel("Parallel Multicast")
 plt.ylabel("Avg Cost over 200 endpoints")
-plt.xticks(index, ('Best Port', 'Shortest Path'))
-# plt.legend()
+plt.xticks(index, ('Forwarding Costs', 'Update Costs'))
 plt.tight_layout()
 plt.show()
-
-
