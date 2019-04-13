@@ -86,7 +86,7 @@ def read_gns(file_name):
     return gns_info[0],gns_info[1]
 
 def main():
-    for x in range(4, 8):
+    for x in range(6,7):
         g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
         locations = read_lists(Path("../Dataset/Locations.pickle"))
         source_list = locations[0]
@@ -108,12 +108,12 @@ def main():
         save_results(results, Path("../Results/res_gns"+str(x+1)+".pickle"))
 
 if __name__ == '__main__':
-    g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
-    total_nodes = len(g.nodes())
-    locations = read_lists(Path("../Dataset/Locations.pickle"))
-    source_list = locations[0]
-    experiments_gns = [total_nodes//2, total_nodes//4, total_nodes//8, total_nodes//16, total_nodes//32, total_nodes//64, total_nodes//128, total_nodes//256, total_nodes//512]
-    for i in range(4, len(experiments_gns)):
-        file_name = "../Dataset/GNS_Servers_expt"+str(i+1)+".pickle"
-        save_gns(g, source_list, experiments_gns[i], file_name)
-    # main()
+    #g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
+    #total_nodes = len(g.nodes())
+    #locations = read_lists(Path("../Dataset/Locations.pickle"))
+    #source_list = locations[0]
+    #experiments_gns = [total_nodes//2, total_nodes//4, total_nodes//8, total_nodes//16, total_nodes//32, total_nodes//64, total_nodes//128, total_nodes//256, total_nodes//512]
+    #for i in range(4, len(experiments_gns)):
+    #    file_name = "../Dataset/GNS_Servers_expt"+str(i+1)+".pickle"
+    #    save_gns(g, source_list, experiments_gns[i], file_name)
+    main()
