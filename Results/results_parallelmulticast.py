@@ -22,7 +22,8 @@ def autolabel(rects):
         ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
                 '%f' % height,
                 ha='center', va='bottom')
-        
+
+print(fc_path_len)
 res = (fc_path_len, uc)
 n_groups = 2
 fig, ax = plt.subplots()
