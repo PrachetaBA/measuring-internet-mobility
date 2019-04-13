@@ -86,7 +86,7 @@ def read_gns(file_name):
     return gns_info[0],gns_info[1]
 
 def main():
-    for x in range(6,7):
+    for x in range(9):
         g = read_graph(Path("../Dataset/BGP_Routing_Table.pickle"))
         locations = read_lists(Path("../Dataset/Locations.pickle"))
         source_list = locations[0]
